@@ -1,0 +1,14 @@
+{
+  "name": "jhembotv2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "jhembotv2.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jhem",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^13.1.0"
+  }
+}
