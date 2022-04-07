@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
 const { token } = require('./config.json');
-const handleReactionAdd = require('./functions/signupReactAdd.js')
+const signupReactionAdd = require('./functions/signupReactAdd.js')
 const deployCommands = require('./functions/deployCommands.js')
 const initGuild = require('./functions/initGuild.js')
 
@@ -57,7 +57,7 @@ client.on('messageReactionAdd', async(reaction, user) => {
 	if (user.id == client.user.id) {
 		return
 	}
-	handleReactionAdd(client, reaction, user)
+	signupReactionAdd(client, reaction, user)
 	//console.log(reaction.emoji.name);
 });
 
