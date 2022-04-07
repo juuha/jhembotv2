@@ -1,0 +1,55 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const guildInfo = require('../guildInfo.json');
+
+const days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+const descriptions = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const builders = []
+for (let day = 0; day < days.length; day++) {
+    builders.push(new SlashCommandBuilder().setName(days[day]).setDescription(`Creates a schedule for next ${descriptions[day]}!`));
+}
+
+module.exports = {
+    data: builders,
+    async execute(interaction, client) {
+        try {
+            await interaction.reply({ content: "schedule", ephemeral: true });
+        } catch (error) { console.log(error) }
+
+        var week = {
+            "mon": 1,
+            "tue": 2,
+            "wed": 3,
+            "thu": 4,
+            "fri": 5,
+            "sat": 6,
+            "sun": 7,
+        };
+
+        var day = week[interaction.commandName];
+        var date = new Date();
+        date.setDate(date.getDate() + (7 - date.getDay()) % 7 + day);
+        date = date.toDateString();
+
+        let roles = "";
+        for ( role in guildInfo[interaction.guild.id]["roles"]) {
+            roles += `\n${role}`
+        }
+        let description = guildInfo[interaction.guild.id].description;
+        let schedule = `> __**${date}**__\n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[0/10]\`\`\`${roles} \nBackups: \n---------------\nCan't make it: \`\`\``;
+        try {
+            const sent = await interaction.channel.send(schedule);
+            for (const role in guildInfo[interaction.guild.id]["roles"]) {
+                let emoji = guildInfo[interaction.guild.id]["roles"][role];
+                let custom_emoji = client.emojis.cache.find(emoji => emoji.name === guildInfo[interaction.guild.id]["roles"][role]);
+                if (custom_emoji) emoji = custom_emoji
+                try {
+                    sent.react(emoji);
+                } catch (error) { console.log(error) }
+            }
+            try {
+                sent.react('♾️');
+                sent.react('⛔');
+            } catch (error) { console.error('One of the emojis failed.') }
+        } catch (error) { console.log(error) }
+    }
+}
