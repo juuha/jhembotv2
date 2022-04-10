@@ -4,6 +4,7 @@ const { token } = require('./config.json');
 const signupReactionAdd = require('./functions/signupReactionAdd.js')
 const deployCommands = require('./functions/deployCommands.js')
 const initGuild = require('./functions/initGuild.js')
+const guildInfo = require('./guildInfo.json')
 
 const client = new Client({
 	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
@@ -24,7 +25,10 @@ client.once('ready', async () => {
 
 	for (var [id, guild] of client.guilds.cache) {
 		initGuild(client, guild)
-		deployCommands(client, guild)
+		//deployCommands(client, guild)
+
+		// clean signups from previous sessions.
+		guildInfo[guild.id]["signups"] = {};
     }
 	console.log('Ready!');
 })
