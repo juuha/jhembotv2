@@ -6,7 +6,7 @@ module.exports = async (client, reaction) => {
     let backups = new Set();
     let removees = new Set();
     guildId = msg.guild.id;
-    let signups = setupSignups(guildInfo, guildId);
+    let signups = initSignups(guildInfo, guildId);
 
     for (var [id, reaction] of msg.reactions.cache) {
         for (var [id, user] of await reaction.users.fetch()) {
@@ -40,9 +40,11 @@ module.exports = async (client, reaction) => {
             }
         }
     }
+    var currentSignUps = guildInfo[guildId][signups][msg.id];
+    console.log(currentSignUps)
 }
 
-function setupSignups(guildInfo, guildId) {
+function initSignups(guildInfo, guildId) {
     let signups = {}
     for (var role in guildInfo[guildId]["roles"]){
         signups[role] = [];

@@ -1,5 +1,5 @@
-const fs = require("fs")
-const guildInfo = require("../guildInfo.json")
+const fs = require("fs");
+const guildInfo = require("../guildInfo.json");
 
 module.exports = (client, guild) => {
     if (!guildInfo[guild.id]) {
