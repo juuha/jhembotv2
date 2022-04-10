@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const guildInfo = require('../guildInfo.json');
+const fs = require("fs");
 
 const days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const descriptions = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -31,9 +32,14 @@ module.exports = {
         date = date.toDateString();
 
         let roles = "";
-        for ( role in guildInfo[interaction.guild.id]["roles"]) {
+        let signups = {};
+        for (role in guildInfo[interaction.guild.id]["roles"]) {
             roles += `\n${role}`
+            signups[role] = [];
         }
+        signups["extra"] = [];
+        signups["no"] = [];
+
         let description = guildInfo[interaction.guild.id].description;
         let schedule = `> __**${date}**__\n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[0/10]\`\`\`${roles} \nBackups: \n---------------\nCan't make it: \`\`\``;
         try {
@@ -50,6 +56,11 @@ module.exports = {
                 sent.react('♾️');
                 sent.react('⛔');
             } catch (error) { console.error('One of the emojis failed.') }
+
+            guildInfo[interaction.guild.id]["signups"][sent.id] = signups;
+            fs.writeFile("./guildInfo.json", JSON.stringify(guildInfo, null, 4), async (error) => {
+                if (error) console.error(error);
+            })
         } catch (error) { console.log(error) }
     }
 }
