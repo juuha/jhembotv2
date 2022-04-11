@@ -1,10 +1,10 @@
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
 const { token } = require('./config.json');
-const signupReactionAdd = require('./functions/signupReactionAdd.js')
 const deployCommands = require('./functions/deployCommands.js')
 const initGuild = require('./functions/initGuild.js')
-const guildInfo = require('./guildInfo.json')
+const guildInfo = require('./guildInfo.json');
+const signupReactionHandler = require('./functions/signupReactionHandler.js');
 
 const client = new Client({
 	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
@@ -29,7 +29,7 @@ client.once('ready', async () => {
 
 		// clean signups from previous sessions.
 		guildInfo[guild.id]["signups"] = {};
-    }
+	}
 	console.log('Ready!');
 })
 
@@ -52,20 +52,26 @@ client.on('interactionCreate', async (interaction) => {
 	}
 })
 
-client.on('messageReactionAdd', async(reaction, user) => {
-	const msg = await reaction.message.fetch()
-	if (msg.channel.type == "dm"
-        || msg.author.id != client.user.id
-        || msg.channel.name == "archive") return
+client.on('messageReactionAdd', async (reaction, user) => {
+	const message = await reaction.message.fetch()
+	if (message.channel.type == "dm"
+		|| message.author.id != client.user.id
+		|| message.channel.name == "archive") return
 	// reactions by bot
-	if (user.id == client.user.id) {
-		return
-	}
-	signupReactionAdd(client, reaction)
+	if (user.id == client.user.id) return
+	signupReactionHandler(client, reaction, message, user, true)
 	//console.log(reaction.emoji.name);
 });
 
 client.on('messageReactionRemove', async (reaction, user) => {
+	const message = await reaction.message.fetch()
+	if (message.channel.type == "dm"
+		|| message.author.id != client.user.id
+		|| message.channel.name == "archive") return
+	// reactions removed by bot
+	if (user.id == client.user.id) return
+
+	signupReactionHandler(client, reaction, message, user, false)
 	// console.log(`reaction by ${user.username} removed`);
 	//console.log(reaction.emoji.name);
 })

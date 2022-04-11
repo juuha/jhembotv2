@@ -37,11 +37,12 @@ module.exports = {
             roles += `\n${role}`
             signups[role] = [];
         }
-        signups["extra"] = [];
-        signups["no"] = [];
-
+        signups["♾️"] = [];
+        signups["⛔"] = [];
+        
+        // TODO custom description
         let description = guildInfo[interaction.guild.id].description;
-        let schedule = `> __**${date}**__\n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[0/10]\`\`\`${roles} \nBackups: \n---------------\nCan't make it: \`\`\``;
+        schedule = `> __**${date}**__\n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[0/10]\`\`\`${roles} \nBackups: \n---------------\nCan't make it: \`\`\``;
         try {
             const sent = await interaction.channel.send(schedule);
             for (const role in guildInfo[interaction.guild.id]["roles"]) {
