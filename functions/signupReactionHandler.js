@@ -13,13 +13,14 @@ module.exports = async (client, reaction, message, user, added) => {
                 break;
             }
         }
-
         if (role) {
-            signups[role] = [...new Set([...signups[role], user.username])];
+            signups[role] = [...new Map([...signups[role], { username: user.username, id: user.id }].map(usr =>
+                [usr["id"], usr])).values()];
         } else if ("♾️⛔".includes(reaction.emoji.name)) {
-            signups[reaction.emoji.name] = [...new Set([...signups[reaction.emoji.name], user.username])];
+            signups[reaction.emoji.name] = [...new Map([...signups[reaction.emoji.name], { username: user.username, id: user.id }].map(usr =>
+                [usr["id"], usr])).values()];
         } else {
-            reaction.remove(user);
+            reaction.users.remove(user.id);
         }
     } else { // reaction was removed
         let role = "";
@@ -34,18 +35,18 @@ module.exports = async (client, reaction, message, user, added) => {
                 role = reaction.emoji.name;
             }
         }
-        signups[role] = signups[role].filter(username => username != user.username);
+        signups[role] = signups[role].filter(usr => usr.username != user.username);
     }
 
     let signees = new Set();
     let backups = new Set();
     let removees = new Set();
     for (const role in signups) {
-        signups[role].forEach(username => {
+        signups[role].forEach(usr => {
             switch (role) {
-                case "♾️": backups.add(username); break;
-                case "⛔": removees.add(username); break;
-                default: signees.add(username);
+                case "♾️": backups.add(usr.username); break;
+                case "⛔": removees.add({ username: usr.username, id: usr.id }); break;
+                default: signees.add(usr.username);
             }
         });
     }
@@ -53,11 +54,11 @@ module.exports = async (client, reaction, message, user, added) => {
     removees.forEach(removedUser => {
         for (var role in signups) {
             if (role == "⛔") continue;
-            signups[role] = signups[role].filter(username => username != removedUser);
+            signups[role] = signups[role].filter(usr => usr.username != removedUser.username);
         }
         for (var [id, reaction] of message.reactions.cache) {
             if (reaction.emoji.name == "⛔") continue;
-            reaction.users.remove(user);
+            reaction.users.remove(removedUser.id);
         }
     })
 
@@ -70,14 +71,11 @@ module.exports = async (client, reaction, message, user, added) => {
     let roles = "";
     for (const role in guildInfo[guildId]["roles"]) {
         if (roles == "") {
-            roles = `${role}: ${signups[role].join(", ") || ""}`;
+            roles = `${role}: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
         } else {
-            roles = `${roles} \n${role}: ${signups[role].join(", ") || ""}`;
+            roles = `${roles} \n${role}: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
         }
     }
-
-    if (!signups["♾️"]) signups["♾️"] = "";
-    if (!signups["⛔"]) signups["⛔"] = "";
 
     backups.forEach(bup => {
         signees.delete(bup);
@@ -88,9 +86,12 @@ module.exports = async (client, reaction, message, user, added) => {
         bups = `+ ${backups.size}`;
     }
 
+    let backupString = signups["♾️"].map(usr => usr.username).join(", ");
+    let nopeString = signups["⛔"].map(usr => usr.username).join(", ");
+
     var date = message.content.split('\n')[0].slice(6, 21)
     var description = message.content.split('\n')[1].substring(4).slice(0, -2)
-    let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[${signees.size}/10] ${bups} \`\`\`${roles} \nBackups: ${signups["♾️"]} \n---------------\nCan't make it: ${signups["⛔"]}\`\`\``
+    let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[${signees.size}/10] ${bups} \`\`\`${roles} \nBackups: ${backupString} \n---------------\nCan't make it: ${nopeString}\`\`\``
     try {
         const edited = await message.edit(schedule);
     } catch (error) { console.log('Error editing message.') }
@@ -126,21 +127,20 @@ async function initSignups(client, reaction, message) {
 
     for (var [reactionId, reaction] of message.reactions.cache) {
         for (var [userId, user] of await Promise.resolve(users[reactionId])) {
-            if (user.id == client.user.id) continue;
+            if (userId == client.user.id) continue;
             var emoji = "";
             for (role in guildInfo[guildId]["roles"]) {
                 if (reaction.emoji.name == guildInfo[guildId]["roles"][role]) {
                     emoji = role;
-                    signups[role] = [...signups[role], user.username];
+                    signups[role] = [...new Map([...signups[role], { username: user.username, id: user.id }].map(usr =>
+                        [usr["id"], usr])).values()];
                     break;
                 }
             }
-            if (reaction.emoji.name == "♾️") {
-                emoji = "♾️";
-                signups[emoji] = [...signups[emoji], user.username];
-            } else if (reaction.emoji.name == "⛔") {
-                emoji = "⛔";
-                signups[emoji] = [...signups[emoji], user.username];
+            if ("♾️⛔".includes(reaction.emoji.name)) {
+                emoji = reaction.emoji.name;
+                signups[emoji] = [...new Map([...signups[emoji], { username: user.username, id: user.id }].map(usr =>
+                    [usr["id"], usr])).values()];
             }
         }
     }
