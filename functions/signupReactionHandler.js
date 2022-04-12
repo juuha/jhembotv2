@@ -4,7 +4,6 @@ const guildInfo = require('../guildInfo.json');
 module.exports = async (client, reaction, message, user, added) => {
     const guildId = message.guild.id;
     let signups = await initSignups(client, reaction, message);
-
     if (added) {
         let role = ""
 
@@ -17,9 +16,7 @@ module.exports = async (client, reaction, message, user, added) => {
 
         if (role) {
             signups[role] = [...new Set([...signups[role], user.username])];
-        } else if (reaction.emoji.name == "♾️") {
-            signups[reaction.emoji.name] = [...new Set([...signups[reaction.emoji.name], user.username])];
-        } else if (reaction.emoji.name == "⛔") {
+        } else if ("♾️⛔".includes(reaction.emoji.name)) {
             signups[reaction.emoji.name] = [...new Set([...signups[reaction.emoji.name], user.username])];
         } else {
             reaction.remove(user);
@@ -38,35 +35,30 @@ module.exports = async (client, reaction, message, user, added) => {
             }
         }
         signups[role] = signups[role].filter(username => username != user.username);
-
     }
 
     let signees = new Set();
     let backups = new Set();
     let removees = new Set();
-
     for (const role in signups) {
         signups[role].forEach(username => {
-            if (role == "♾️") {
-                backups.add(username);
-            } else if (role == "⛔") {
-                removees.add(username);
-                for (var foundRole in signups) {
-                    if (foundRole == "⛔") continue;
-                    signups[foundRole] = signups[foundRole].filter(username => username != user.username);
-                    for (var [id, reaction] of message.reactions.cache) {
-                        if (reaction.emoji.name == "⛔") continue;
-                        reaction.users.remove(user);
-                    }
-                }
-            } else {
-                signees.add(username);
+            switch (role) {
+                case "♾️": backups.add(username); break;
+                case "⛔": removees.add(username); break;
+                default: signees.add(username);
             }
         });
     }
 
-    removees.forEach(username => {
-        
+    removees.forEach(removedUser => {
+        for (var role in signups) {
+            if (role == "⛔") continue;
+            signups[role] = signups[role].filter(username => username != removedUser);
+        }
+        for (var [id, reaction] of message.reactions.cache) {
+            if (reaction.emoji.name == "⛔") continue;
+            reaction.users.remove(user);
+        }
     })
 
     guildInfo[guildId]["signups"][message.id] = signups;
@@ -89,7 +81,7 @@ module.exports = async (client, reaction, message, user, added) => {
 
     backups.forEach(bup => {
         signees.delete(bup);
-    })
+    });
 
     let bups = "";
     if (backups.size > 0) {
@@ -116,8 +108,24 @@ async function initSignups(client, reaction, message) {
     signups["♾️"] = [];
     signups["⛔"] = [];
 
-    for (var [id, reaction] of message.reactions.cache) {
-        for (var [id, user] of await reaction.users.fetch()) {
+    const users = {};
+
+    for (var [reactionId, reaction] of message.reactions.cache) {
+        let promisedUsers = new Promise((resolve, reject) => {
+            resolve(reaction.users.fetch());
+        });
+        users[reactionId] = promisedUsers;
+    }
+
+    const promises = [];
+    for ([key, val] of Object.entries(users)) {
+        promises.push(val);
+    }
+
+    await Promise.all(promises);
+
+    for (var [reactionId, reaction] of message.reactions.cache) {
+        for (var [userId, user] of await Promise.resolve(users[reactionId])) {
             if (user.id == client.user.id) continue;
             var emoji = "";
             for (role in guildInfo[guildId]["roles"]) {
