@@ -24,11 +24,11 @@ client.once('ready', async () => {
 	}
 
 	for (var [id, guild] of client.guilds.cache) {
-		initGuild(client, guild)
+		initGuild(client, guild);
 		//deployCommands(client, guild)
 
 		// clean signups from previous sessions.
-		guildInfo[guild.id]["signups"] = {};
+		guildInfo[id]["signups"] = {};
 	}
 	console.log('Ready!');
 })
