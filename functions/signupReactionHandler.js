@@ -70,10 +70,15 @@ module.exports = async (client, reaction, message, user, added) => {
 
     let roles = "";
     for (const role in guildInfo[guildId]["roles"]) {
+        let emoji = guildInfo[guildId]["roles"][role];
+        let custom_emoji = client.emojis.cache.find(emoji => emoji.name == guildInfo[guildId]["roles"][role]);
+        if (custom_emoji) emoji = custom_emoji;
         if (roles == "") {
-            roles = `${role}: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
+            // roles = `${role}: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
+            roles = `${emoji} __${role}__: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
         } else {
-            roles = `${roles} \n${role}: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
+            // roles = `${roles} \n${role}: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
+            roles = `${roles} \n${emoji} __${role}__: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
         }
     }
 
@@ -91,7 +96,9 @@ module.exports = async (client, reaction, message, user, added) => {
 
     var date = message.content.split('\n')[0].slice(6, 21)
     var description = message.content.split('\n')[1].substring(4).slice(0, -2)
-    let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[${signees.size}/10] ${bups} \`\`\`${roles} \nBackups: ${backupString} \n---------------\nCan't make it: ${nopeString}\`\`\``
+    // let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[${signees.size}/10] ${bups} \`\`\`${roles} \nBackups: ${backupString} \n---------------\nCan't make it: ${nopeString}\`\`\``
+     let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[${signees.size}/10] ${bups} \n>>> ${roles}\n--------------- \n♾️ __Backups__: ${backupString} \n⛔ __Can't make it__: ${nopeString}\n`
+
     try {
         const edited = await message.edit(schedule);
     } catch (error) { console.log('Error editing message.') }
