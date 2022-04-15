@@ -61,16 +61,30 @@ module.exports = {
             }
         }
 
-        if (customEmoji) {
-            guildInfo[guildId]["roles"][newRole] = customEmoji.name;
-        } else {
-            guildInfo[guildId]["roles"][newRole] = emoj[1];
+        const emoji = customEmoji ? customEmoji : emoj[1];
+        let emojiName = customEmoji ? customEmoji.name : emoj[1];
+
+        for (const role in guildInfo[guildId]["roles"]) {
+            if (guildInfo[guildId]["roles"][role] == emojiName) {
+                try {
+                    const sent = await interaction.reply(`Emoji ${emoji} already in use for role ${role}. Choose a different emoji or remove the old one first.`);
+                } catch (error) {
+                    console.error(error);
+                } finally {
+                    setTimeout(async () => {
+                        await interaction.deleteReply();
+                    }, 10000)
+                }
+                return;
+            }
         }
+
+        guildInfo[guildId]["roles"][newRole] = emojiName;
+
         fs.writeFile("./guildInfo.json", JSON.stringify(guildInfo, null, 4), async (error) => {
             if (error) console.error(error);
         })
 
-        const emoji = customEmoji ? customEmoji : emoj[1];
         try {
             const sent = await interaction.reply(`Role ${newRole} added with emoji ${emoji}.`);
         } catch (error) {
