@@ -31,18 +31,23 @@ module.exports = {
         date.setDate(date.getDate() + (7 - date.getDay()) % 7 + day);
         date = date.toDateString();
 
+        const guildId = interaction.guild.id;
+
         let roles = "";
         let signups = {};
-        for (role in guildInfo[interaction.guild.id]["roles"]) {
-            roles += `\n${role}`
+        for (const role in guildInfo[guildId]["roles"]) {
+            let emoji = guildInfo[guildId]["roles"][role];
+            let custom_emoji = client.emojis.cache.find(emoji => emoji.name == guildInfo[guildId]["roles"][role]);
+            if (custom_emoji) emoji = custom_emoji;
+            roles += `${emoji} __${role}__:\n`
             signups[role] = [];
         }
         signups["♾️"] = [];
         signups["⛔"] = [];
-        
+
         // TODO custom description
         let description = guildInfo[interaction.guild.id].description;
-        schedule = `> __**${date}**__\n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[0/10]\`\`\`${roles} \nBackups: \n---------------\nCan't make it: \`\`\``;
+        schedule = `> __**${date}**__\n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[0/10] \n>>> ${roles}--------------- \n♾️ __Backups__: \n⛔ __Can't make it__: \n`;
         try {
             const sent = await interaction.channel.send(schedule);
             for (const role in guildInfo[interaction.guild.id]["roles"]) {
