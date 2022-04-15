@@ -14,6 +14,9 @@ module.exports = async (client, reaction, message, user, added) => {
             }
         }
         if (role) {
+            if (!signups[role]) {
+                signups[role] = [];
+            }
             signups[role] = [...new Map([...signups[role], { username: user.username, id: user.id }].map(usr =>
                 [usr["id"], usr])).values()];
         } else if ("♾️⛔".includes(reaction.emoji.name)) {
@@ -34,6 +37,9 @@ module.exports = async (client, reaction, message, user, added) => {
             if (["⛔", "♾️"].includes(reaction.emoji.name)) {
                 role = reaction.emoji.name;
             }
+        }
+        if (!signups[role]) {
+            signups[role] = [];
         }
         signups[role] = signups[role].filter(usr => usr.username != user.username);
     }
