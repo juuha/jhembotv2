@@ -8,6 +8,8 @@ module.exports = {
         .setDescription("Archives schedules into #archive channel.")
     ],
     async execute(interaction, client) {
+        const guildId = interaction.guild.id;
+        
         try {
             const sent = await interaction.reply(`Archiving messages.`);
         } catch (error) {
@@ -30,8 +32,12 @@ module.exports = {
             } catch (error) { console.error(error) };
         }
         await interaction.channel.messages.fetch();
-        for (const [msgId, message] of interaction.channel.messages.cache) {
+        for (const [messageId, message] of interaction.channel.messages.cache) {
             if (message.author.id != client.user.id || !message.content.startsWith("> __**")) continue
+
+            if (guildInfo[guildId]["signups"][messageId]) {
+                delete guildInfo[guildId]["signups"][messageId];
+            }
 
             try {
                 await archiveChannel.send(message.content);
