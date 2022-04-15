@@ -5,7 +5,7 @@ const fs = require("fs");
 module.exports = {
     data: [new SlashCommandBuilder()
         .setName("addrole")
-        .setDescription("Starts a role addition process!")
+        .setDescription("Adds a new role with given name and emoji.")
         .addStringOption(option =>
             option.setName("role_name")
                 .setDescription("Name of the new role.")
