@@ -70,6 +70,10 @@ module.exports = async (client, reaction, message, user, added) => {
 
     let roles = "";
     for (const role in guildInfo[guildId]["roles"]) {
+        if (!signups[role]) {
+            signups[role] = [];
+        }
+
         let emoji = guildInfo[guildId]["roles"][role];
         let custom_emoji = client.emojis.cache.find(emoji => emoji.name == guildInfo[guildId]["roles"][role]);
         if (custom_emoji) emoji = custom_emoji;
