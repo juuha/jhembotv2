@@ -55,7 +55,7 @@ module.exports = {
         })
         
         if (minutes == 0) minutes = "00";
-        if (hours = 0) hours = "00";
+        if (hours == 0) hours = "00";
 
         try {
             await interaction.reply(`Default ${whatTime} set to ${hours}:${minutes}.`);
