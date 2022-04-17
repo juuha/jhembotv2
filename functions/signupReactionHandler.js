@@ -22,8 +22,16 @@ module.exports = async (client, reaction, message, user, added) => {
         } else if ("♾️⛔".includes(reaction.emoji.name)) {
             signups[reaction.emoji.name] = [...new Map([...signups[reaction.emoji.name], { username: user.username, id: user.id }].map(usr =>
                 [usr["id"], usr])).values()];
+        } else if (reaction.emoji.name == "🔀") {
+            if (guildInfo[guildId]["views"][message.id] == "role") {
+                guildInfo[guildId]["views"][message.id] = "users";
+            } else {
+                guildInfo[guildId]["views"][message.id] = "role";
+            }
+            reaction.users.remove(user.id);
         } else {
             reaction.users.remove(user.id);
+            return;
         }
     } else { // reaction was removed
         let role = "";
@@ -38,10 +46,12 @@ module.exports = async (client, reaction, message, user, added) => {
                 role = reaction.emoji.name;
             }
         }
-        if (!signups[role]) {
-            signups[role] = [];
+        if (role) {
+            if (!signups[role]) {
+                signups[role] = [];
+            }
+            signups[role] = signups[role].filter(usr => usr.username != user.username);
         }
-        signups[role] = signups[role].filter(usr => usr.username != user.username);
     }
 
     let signees = new Set();
@@ -74,6 +84,9 @@ module.exports = async (client, reaction, message, user, added) => {
         if (error) console.error(error);
     })
 
+    let view = guildInfo[guildId]["views"][message.id];
+    let users = {};
+
     let roles = "";
     for (const role in guildInfo[guildId]["roles"]) {
         if (!signups[role]) {
@@ -83,18 +96,27 @@ module.exports = async (client, reaction, message, user, added) => {
         let emoji = guildInfo[guildId]["roles"][role];
         let custom_emoji = client.emojis.cache.find(emoji => emoji.name == guildInfo[guildId]["roles"][role]);
         if (custom_emoji) emoji = custom_emoji;
-        if (roles == "") {
-            // roles = `${role}: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
-            roles = `${emoji} __${role}__: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
+        if (view == "role") {
+            roles += `${emoji} __${role}__: ${signups[role].map(usr => usr.username).join(", ") || ""}\n`;
         } else {
-            // roles = `${roles} \n${role}: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
-            roles = `${roles} \n${emoji} __${role}__: ${signups[role].map(usr => usr.username).join(", ") || ""}`;
+            for (var index in signups[role]) {
+                let usr = signups[role][index];
+                if (!users[usr.username]) users[usr.username] = [];
+                users[usr.username].push(emoji);
+            }
         }
     }
 
     backups.forEach(bup => {
         signees.delete(bup);
+        delete users[bup];
     });
+
+    if (Object.keys(users).length > 0) {
+        for (var username in users) {
+            roles += `${username}: ${users[username].map(emoji => emoji).join(", ")}\n`;
+        }
+    }
 
     let bups = "";
     if (backups.size > 0) {
@@ -106,8 +128,7 @@ module.exports = async (client, reaction, message, user, added) => {
 
     var date = message.content.split('\n')[0].slice(6, 21)
     var description = message.content.split('\n')[1].substring(4).slice(0, -2)
-    // let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[${signees.size}/10] ${bups} \`\`\`${roles} \nBackups: ${backupString} \n---------------\nCan't make it: ${nopeString}\`\`\``
-     let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[${signees.size}/10] ${bups} \n>>> ${roles}\n--------------- \n♾️ __Backups__: ${backupString} \n⛔ __Can't make it__: ${nopeString}\n`
+    let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[${signees.size}/10] ${bups} \n>>> ${roles}--------------- \n♾️ __Backups__: ${backupString} \n⛔ __Can't make it__: ${nopeString}\n`
 
     try {
         const edited = await message.edit(schedule);

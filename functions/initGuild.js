@@ -20,6 +20,12 @@ module.exports = (client, guild) => {
     if (!guildInfo[guild.id]["endTime"]){
         guildInfo[guild.id]["endTime"] = null;
     }
+    if (!guildInfo[guild.id]["defaultView"]) {
+        guildInfo[guild.id]["defaultView"] = "role";
+    }
+    if (!guildInfo[guild.id]["views"]) {
+        guildInfo[guild.id]["views"] = {};
+    }
     fs.writeFile("./guildInfo.json", JSON.stringify(guildInfo, null, 4), async (error) => {
         if (error) console.error(error);
     })
