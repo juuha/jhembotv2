@@ -54,6 +54,9 @@ module.exports = {
             if (error) console.error(error);
         })
         
+        if (minutes == 0) minutes = "00";
+        if (hours = 0) hours = "00";
+
         try {
             await interaction.reply(`Default ${whatTime} set to ${hours}:${minutes}.`);
         } catch (error) {
@@ -68,7 +71,7 @@ module.exports = {
 }
 
 async function validTime(interaction, hours, minutes) {
-    if (!hours || !minutes) {
+    if (isNaN(hours) || isNaN(minutes)) {
         try {
             await interaction.reply(`Time was not in format hh:mm, please try again. Example 8PM is 20:00.`);
         } catch (error) {
