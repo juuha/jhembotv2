@@ -8,7 +8,7 @@ module.exports = {
         .setDescription("Sets the default description of signups.")
         .addStringOption(option =>
             option.setName("new_description")
-                .setDescription("Put new description here.")
+                .setDescription("Put new description here. Use <start> and <end> to use default start and end times.")
                 .setRequired(true))
     ],
     async execute(interaction, client) {

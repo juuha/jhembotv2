@@ -9,7 +9,7 @@ for (let day = 0; day < days.length; day++) {
     builders.push(new SlashCommandBuilder().setName(days[day]).setDescription(`Creates a schedule for next ${descriptions[day]}!`)
     .addStringOption(option =>
         option.setName("schedule_description")
-            .setDescription("Optional description to overwrite default description.")
+            .setDescription("Optional description to overwrite default description. Use <start> and <end> to use default start and end times.")
             .setRequired(false))
     );
 }
@@ -22,7 +22,7 @@ builders.push(new SlashCommandBuilder()
             .setRequired(true))
     .addStringOption(option =>
         option.setName("schedule_description")
-            .setDescription("Optional description to overwrite default description.")
+            .setDescription("Optional description to overwrite default description. Use <start> and <end> to use default start and end times.")
             .setRequired(false))
 );
 
@@ -64,8 +64,6 @@ module.exports = {
             date.setDate(date.getDate() + (7 - date.getDay()) % 7 + day);
         }
 
-        date = date.toDateString();
-
         try {
             await interaction.reply(`Creating a schedule.`);
         } catch (error) {
@@ -94,8 +92,22 @@ module.exports = {
         let description = guildInfo[interaction.guild.id].description;
         const scheduleDescription = interaction.options.getString("schedule_description");
         if (scheduleDescription) description = scheduleDescription;
+
+        let startTime = guildInfo[interaction.guild.id]["startTime"];
+        let endTime = guildInfo[interaction.guild.id]["endTime"];
+
+        if (!isNaN(startTime)) {
+            startTime = Math.floor((new Date(date).setHours(0,0,0) + startTime)/1000);
+            startTime = `<t:${startTime}:t>`;
+            description = description.replace("<start>", startTime);
+        }
+        if (!isNaN(endTime)) {
+            endTime = Math.floor((new Date(date).setHours(0,0,0) + endTime)/1000);
+            endTime = `<t:${endTime}:t>`;
+            description = description.replace("<end>", endTime);
+        }
         
-        schedule = `> __**${date}**__\n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[0/10] \n>>> ${roles}--------------- \n♾️ __Backups__: \n⛔ __Can't make it__: \n`;
+        schedule = `> __**${date.toDateString()}**__\n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[0/10] \n>>> ${roles}--------------- \n♾️ __Backups__: \n⛔ __Can't make it__: \n`;
         try {
             const sent = await interaction.channel.send(schedule);
             for (const role in guildInfo[interaction.guild.id]["roles"]) {
