@@ -56,24 +56,18 @@ client.on('messageReactionAdd', async (reaction, user) => {
 	const message = await reaction.message.fetch()
 	if (message.channel.type == "dm"
 		|| message.author.id != client.user.id
-		|| message.channel.name == "archive") return
-	// reactions by bot
-	if (user.id == client.user.id) return
+		|| message.channel.name == "archive"
+		|| user.id == client.user.id) return
 	signupReactionHandler(client, reaction, message, user, true)
-	//console.log(reaction.emoji.name);
 });
 
 client.on('messageReactionRemove', async (reaction, user) => {
 	const message = await reaction.message.fetch()
 	if (message.channel.type == "dm"
 		|| message.author.id != client.user.id
-		|| message.channel.name == "archive") return
-	// reactions removed by bot
-	if (user.id == client.user.id) return
-
+		|| message.channel.name == "archive"
+		|| user.id == client.user.id) return
 	signupReactionHandler(client, reaction, message, user, false)
-	// console.log(`reaction by ${user.username} removed`);
-	//console.log(reaction.emoji.name);
 })
 
 client.login(token);
