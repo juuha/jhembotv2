@@ -27,8 +27,9 @@ client.once('ready', async () => {
 		initGuild(client, guild);
 		//deployCommands(client, guild)
 
-		// clean signups from previous sessions.
+		// cleanup from previous sessions.
 		guildInfo[id]["signups"] = {};
+		guildInfo[id]["views"] = {};
 	}
 	console.log('Ready!');
 })
