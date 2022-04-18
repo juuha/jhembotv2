@@ -112,7 +112,7 @@ module.exports = {
             description = description.replace("<end>", endTime);
         }
         
-        schedule = `> __**${date.toDateString()}**__\n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[0/10] \n>>> ${roles}--------------- \n♾️ __Backups__: \n⛔ __Can't make it__: \n`;
+        schedule = `> __**${date.toDateString()}**__\n> **${description}**\n Sign up by clicking one of the corresponding reactions! Use 🔀 to switch between views. \n[0/10] \n>>> ${roles}--------------- \n♾️ __Backups__: \n⛔ __Can't make it__: \n`;
         try {
             const sent = await interaction.channel.send(schedule);
             for (const role in guildInfo[guildId]["roles"]) {

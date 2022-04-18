@@ -128,7 +128,7 @@ module.exports = async (client, reaction, message, user, added) => {
 
     var date = message.content.split('\n')[0].slice(6, 21)
     var description = message.content.split('\n')[1].substring(4).slice(0, -2)
-    let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions! \n[${signees.size}/10] ${bups} \n>>> ${roles}--------------- \n♾️ __Backups__: ${backupString} \n⛔ __Can't make it__: ${nopeString}\n`
+    let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions! Use 🔀 to switch between views. \n[${signees.size}/10] ${bups} \n>>> ${roles}--------------- \n♾️ __Backups__: ${backupString} \n⛔ __Can't make it__: ${nopeString}\n`
 
     try {
         const edited = await message.edit(schedule);
