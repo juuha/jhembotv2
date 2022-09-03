@@ -97,12 +97,15 @@ module.exports = async (client, reaction, message, user, added) => {
         let custom_emoji = client.emojis.cache.find(emoji => emoji.name == guildInfo[guildId]["roles"][role]);
         if (custom_emoji) emoji = custom_emoji;
         if (view == "role") {
-            roles += `${emoji} __${role}__: ${signups[role].map(usr => usr.username).join(", ") || ""}\n`;
+            roles += `${emoji} __${role}__: ${signups[role].map(
+                usr => getDisplayName(message, usr)
+            ).join(", ") || ""}\n`;
         } else {
             for (var index in signups[role]) {
                 let usr = signups[role][index];
-                if (!users[usr.username]) users[usr.username] = [];
-                users[usr.username].push(emoji);
+                let displayName = getDisplayName(message, usr)
+                if (!users[displayName]) users[displayName] = [];
+                users[displayName].push(emoji);
             }
         }
     }
@@ -123,12 +126,14 @@ module.exports = async (client, reaction, message, user, added) => {
         bups = `+ ${backups.size}`;
     }
 
-    let backupString = signups["♾️"].map(usr => usr.username).join(", ");
-    let nopeString = signups["⛔"].map(usr => usr.username).join(", ");
+    let backupString = signups["♾️"].map(usr => getDisplayName(message, usr)).join(", ");
+    let nopeString = signups["⛔"].map(usr => getDisplayName(message, usr)).join(", ");
 
     var date = message.content.split('\n')[0].slice(6, 21)
     var description = message.content.split('\n')[1].substring(4).slice(0, -2)
-    let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions! Use 🔀 to switch between views. \n[${signees.size}/10] ${bups} \n>>> ${roles}--------------- \n♾️ __Backups__: ${backupString} \n⛔ __Can't make it__: ${nopeString}\n`
+    let schedule = `> __**${date}**__ \n> **${description}**\n Sign up by clicking one of the corresponding reactions!`+
+     `Use 🔀 to switch between views. \n[${signees.size}/10] ${bups} \n>>> ${roles}--------------- \n♾️ __Backups__:`+
+     ` ${backupString} \n⛔ __Can't make it__: ${nopeString}\n`
 
     try {
         const edited = await message.edit(schedule);
@@ -183,6 +188,10 @@ async function initSignups(client, reaction, message) {
         }
     }
     return signups;
+}
+
+function getDisplayName(message, usr) {
+    return message.guild.members.resolve(usr.id).nickname ?? usr.username
 }
 
 /**
