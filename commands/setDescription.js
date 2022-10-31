@@ -17,6 +17,11 @@ module.exports = {
 
         guildInfo[guildId]["description"] = newDescription;
 
+        if (!guildInfo) {
+            console.log('Tried to write description, but guildInfo was empty. Returning.');
+            return;
+        }
+
         fs.writeFile("./guildInfo.json", JSON.stringify(guildInfo, null, 4), async (error) => {
             if (error) console.error(error);
         });

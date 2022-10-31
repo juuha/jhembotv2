@@ -131,6 +131,10 @@ module.exports = {
 
             guildInfo[interaction.guild.id]["signups"][sent.id] = signups;
             guildInfo[interaction.guild.id]["views"][sent.id] = defaultView;
+            if (!guildInfo) {
+                console.log('Tried to create new schedule, but guildInfo was empty. Returning.');
+                return;
+            }
             fs.writeFile("./guildInfo.json", JSON.stringify(guildInfo, null, 4), async (error) => {
                 if (error) console.error(error);
             })

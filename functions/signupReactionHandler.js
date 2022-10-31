@@ -80,6 +80,11 @@ module.exports = async (client, reaction, message, user, added) => {
 
     guildInfo[guildId]["signups"][message.id] = signups;
 
+    if (!guildInfo) {
+        console.log('Tried to handle a reaction, but guildInfo was empty. Returning.');
+        return;
+    }
+
     fs.writeFile("./guildInfo.json", JSON.stringify(guildInfo, null, 4), async (error) => {
         if (error) console.error(error);
     })

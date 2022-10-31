@@ -81,6 +81,11 @@ module.exports = {
 
         guildInfo[guildId]["roles"][newRole] = emojiName;
 
+        if (!guildInfo) {
+            console.log('Tried to add role, but guildInfo was empty. Returning.');
+            return;
+        }
+
         fs.writeFile("./guildInfo.json", JSON.stringify(guildInfo, null, 4), async (error) => {
             if (error) console.error(error);
         })

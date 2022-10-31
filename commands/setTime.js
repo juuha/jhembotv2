@@ -50,6 +50,11 @@ module.exports = {
             guildInfo[guildId]["endTime"] = milliseconds;
         }
 
+        if (!guildInfo) {
+            console.log('Tried to set time, but guildInfo was empty. Returning.');
+            return;
+        }
+
         fs.writeFile("./guildInfo.json", JSON.stringify(guildInfo, null, 4), async (error) => {
             if (error) console.error(error);
         })

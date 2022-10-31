@@ -21,6 +21,11 @@ module.exports = {
             try {
                 delete guildInfo[guildId]["roles"][removedRole];
 
+                if (!guildInfo) {
+                    console.log('Tried to remove role, but guildInfo was empty. Returning.');
+                    return;
+                }
+
                 fs.writeFile("./guildInfo.json", JSON.stringify(guildInfo, null, 4), async (error) => {
                     if (error) console.error(error);
                 })

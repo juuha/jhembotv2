@@ -26,6 +26,10 @@ module.exports = (client, guild) => {
     if (!guildInfo[guild.id]["views"]) {
         guildInfo[guild.id]["views"] = {};
     }
+    if (!guildInfo) {
+        console.log('Tried to initialize guild, but guildInfo was empty. Returning.');
+        return;
+    }
     fs.writeFile("./guildInfo.json", JSON.stringify(guildInfo, null, 4), async (error) => {
         if (error) console.error(error);
     })
