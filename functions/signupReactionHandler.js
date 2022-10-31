@@ -103,12 +103,12 @@ module.exports = async (client, reaction, message, user, added) => {
         if (custom_emoji) emoji = custom_emoji;
         if (view == "role") {
             roles += `${emoji} __${role}__: ${signups[role].map(
-                async (usr) => await getDisplayName(message, usr)
+                usr => getDisplayName(message, usr)
             ).join(", ") || ""}\n`;
         } else {
             for (var index in signups[role]) {
                 let usr = signups[role][index];
-                let displayName = await getDisplayName(message, usr)
+                let displayName = getDisplayName(message, usr)
                 if (!users[displayName]) users[displayName] = [];
                 users[displayName].push(emoji);
             }
@@ -131,8 +131,8 @@ module.exports = async (client, reaction, message, user, added) => {
         bups = `+ ${backups.size}`;
     }
 
-    let backupString = signups["♾️"].map( async (usr) => await getDisplayName(message, usr)).join(", ");
-    let nopeString = signups["⛔"].map(async (usr) => await getDisplayName(message, usr)).join(", ");
+    let backupString = signups["♾️"].map(usr => getDisplayName(message, usr)).join(", ");
+    let nopeString = signups["⛔"].map(usr => getDisplayName(message, usr)).join(", ");
 
     var date = message.content.split('\n')[0].slice(6, 21)
     var description = message.content.split('\n')[1].substring(4).slice(0, -2)
