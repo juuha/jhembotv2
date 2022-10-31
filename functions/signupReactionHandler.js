@@ -197,7 +197,7 @@ async function initSignups(client, reaction, message) {
 
 async function getDisplayName(message, usr) {
     const user = await message.guild.members.resolve(usr.id)
-    return user?.nickname ?? usr.username
+    return user.nickname ?? usr.username
 }
 
 /**
