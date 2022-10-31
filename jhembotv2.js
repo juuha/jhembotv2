@@ -5,7 +5,6 @@ const deployCommands = require('./functions/deployCommands.js')
 const initGuild = require('./functions/initGuild.js')
 const guildInfo = require('./guildInfo.json');
 const signupReactionHandler = require('./functions/signupReactionHandler.js');
-const checkPerms = require('./functions/checkPerms');
 
 const client = new Client({
 	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
@@ -41,10 +40,6 @@ client.on('guildCreate', async (guild) => {
 })
 
 client.on('interactionCreate', async (interaction) => {
-	if (!checkPerms(interaction, client)) {
-		return;
-	}
-
 	if (!interaction.isCommand()) return;
 
 	const command = client.commands.get(interaction.commandName);
