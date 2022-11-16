@@ -41,6 +41,7 @@ module.exports = {
 
         if (match) {
             customEmoji = client.emojis.cache.find(emoji => emoji.id == match[3])
+                || await interaction.guild.emojis.fetch(match[3]);
         }
         let emoj = null;
         if (!customEmoji) {
