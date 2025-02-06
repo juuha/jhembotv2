@@ -20,7 +20,7 @@ module.exports = async (client, reaction, message, user, added) => {
             signups[role] = [...new Map([...signups[role], { username: user.username, id: user.id }].map(usr =>
                 [usr["id"], usr])).values()];
         } else if ("♾️⛔".includes(reaction.emoji.name)) {
-            signups[reaction.emoji.name] = [...new Map([...signups[reaction.emoji.name], { username: user.username, id: user.id }].map(usr =>
+            signups[reaction.emoji.name] = [...new Map([...signups[reaction.emoji.name], { username: user.displayName, id: user.id }].map(usr =>
                 [usr["id"], usr])).values()];
         } else if (reaction.emoji.name == "🔀") {
             if (guildInfo[guildId]["views"][message.id] == "role") {
